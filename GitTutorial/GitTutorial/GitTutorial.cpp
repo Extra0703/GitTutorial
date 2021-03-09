@@ -6,4 +6,5 @@ int main(){
 	cout << "Nice!!" << endl;
 	cout << "Nanahira is GOD!" << endl;
 	cout << "FBI HI HOW are dare you!!!!!" << endl;
+	cout << "jjlkjkljkjsfklkfsdff" << endl;
 }
