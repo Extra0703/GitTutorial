@@ -1,1 +1,4 @@
 D:\OOPLTEST\GitTutorial\GitTutorial\Debug\GitTutorial.exe
+D:\OOP\倉庫番(git)\GitTutorial\Debug\GitTutorial.pdb
+D:\OOP\倉庫番(git)\GitTutorial\GitTutorial\Debug\GitTutorial.exe
+D:\OOP\倉庫番(git)\GitTutorial\GitTutorial\Debug\GitTutorial.pdb
