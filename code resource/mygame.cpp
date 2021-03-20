@@ -224,10 +224,26 @@ void CGameStateRun::OnBeginState()
 	CAudio::Instance()->Play(AUDIO_DING, false);		// 撥放 WAVE
 	CAudio::Instance()->Play(AUDIO_NTUT, true);			// 撥放 MIDI
 
+	//numOfBoxInMap[0] = gamemap1.getBoxNum();
+	//numOfBoxInMap[1] = gamemap2.getBoxNum();
+
 	int count = 0;
 	for (int i = 0; i < 15; i++) {
 		for (int j = 0; j < 10; j++) {
-			int flag = gamemap.getMap(i, j);
+			int flag;
+			switch (whichMap){
+			case 1:
+				flag = gamemap1.getMap(i, j);
+				break;
+			case 2:
+				flag = gamemap2.getMap(i, j);
+				break;
+			case 3:
+				flag = gamemap3.getMap(i, j);
+				break;
+			default:
+				break;
+			}
 			if (flag == 3) {
 				box[count].SetXY(i * 64, j * 64);
 				box[count].setBoxNumber(count);
@@ -284,20 +300,63 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 	//
 	bball.OnMove();
 
-	setManLeftIs(&gamemap);
-	setManRightIs(&gamemap);
-	setManUpIs(&gamemap);
-	setManDownIs(&gamemap);
-	for (int i = 0; i < 4; i++) {
-		setBoxLeftIs(&gamemap, i);
-		setBoxRightIs(&gamemap, i);
-		setBoxUpIs(&gamemap, i);
-		setBoxDownIs(&gamemap, i);
+	switch (whichMap) {
+	case 1:
+		setManLeftIs(&gamemap1);
+		setManRightIs(&gamemap1);
+		setManUpIs(&gamemap1);
+		setManDownIs(&gamemap1);
+		for (int i = 0; i < gamemap1.getBoxNum(); i++) {
+			setBoxLeftIs(&gamemap1, i);
+			setBoxRightIs(&gamemap1, i);
+			setBoxUpIs(&gamemap1, i);
+			setBoxDownIs(&gamemap1, i);
+		}
+		break;
+	case 2:
+		setManLeftIs(&gamemap2);
+		setManRightIs(&gamemap2);
+		setManUpIs(&gamemap2);
+		setManDownIs(&gamemap2);
+		for (int i = 0; i < gamemap2.getBoxNum(); i++) {
+			setBoxLeftIs(&gamemap2, i);
+			setBoxRightIs(&gamemap2, i);
+			setBoxUpIs(&gamemap2, i);
+			setBoxDownIs(&gamemap2, i);
+		}
+		break;
+	case 3:
+		setManLeftIs(&gamemap3);
+		setManRightIs(&gamemap3);
+		setManUpIs(&gamemap3);
+		setManDownIs(&gamemap3);
+		for (int i = 0; i < gamemap3.getBoxNum(); i++) {
+			setBoxLeftIs(&gamemap3, i);
+			setBoxRightIs(&gamemap3, i);
+			setBoxUpIs(&gamemap3, i);
+			setBoxDownIs(&gamemap3, i);
+		}
+		break;
+	default:
+		break;
 	}
+
+	/*setManLeftIs(&gamemap1);
+	setManRightIs(&gamemap1);
+	setManUpIs(&gamemap1);
+	setManDownIs(&gamemap1);
+	for (int i = 0; i < 4; i++) {
+		setBoxLeftIs(&gamemap1, i);
+		setBoxRightIs(&gamemap1, i);
+		setBoxUpIs(&gamemap1, i);
+		setBoxDownIs(&gamemap1, i);
+	}*/
 	man.OnMove();
 
-	if (checkWin()) { // 可以確定有沒有贏了，此功能OK
+	if (checkWin()/* && whichMap != 3*/) { // 可以確定有沒有贏了，此功能OK
 		//Sleep(1000);
+		whichMap++;
+		OnBeginState();
 	}
 }
 
@@ -336,8 +395,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	// 此OnInit動作會接到CGameStaterOver::OnInit()，所以進度還沒到100%
 	//
 
-	gamemap.LoadBitmap();
-	for (int i = 0; i < 4; i++) {
+	gamemap1.LoadBitmap();
+	gamemap2.LoadBitmap();
+	gamemap3.LoadBitmap();
+	for (int i = 0; i < 8; i++) {
 		box[i].LoadBitmap();
 	}
 	man.LoadBitmap();
@@ -349,6 +410,11 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	const char KEY_UP    = 0x26; // keyboard上箭頭
 	const char KEY_RIGHT = 0x27; // keyboard右箭頭
 	const char KEY_DOWN  = 0x28; // keyboard下箭頭
+	const char KEY_RESET = 0x52; // R 鍵
+
+	if (nChar == KEY_RESET) {
+		OnBeginState();
+	}
 
 	if (nChar == KEY_LEFT) {
 		eraser.SetMovingLeft(true);
@@ -467,10 +533,34 @@ void CGameStateRun::OnShow()
 	corner.SetTopLeft(SIZE_X-corner.Width(), SIZE_Y-corner.Height());
 	corner.ShowBitmap();
 
-	gamemap.OnShow();
-	for (int i = 0; i < 4; i++) {
-		box[i].OnShow();
+	switch (whichMap){
+	case 1:
+		gamemap1.OnShow();
+		for (int i = 0; i < gamemap1.getBoxNum(); i++) {
+			box[i].OnShow();
+		}
+		break;
+	case 2:
+		gamemap2.OnShow();
+		for (int i = 0; i < gamemap2.getBoxNum(); i++) {
+			box[i].OnShow();
+		}
+		break;
+	case 3:
+		gamemap3.OnShow();
+		for (int i = 0; i < gamemap3.getBoxNum(); i++) {
+			box[i].OnShow();
+		}
+		break;
+	default:
+		break;
 	}
+
+
+	/*gamemap1.OnShow();
+	for (int i = 0; i < 5; i++) {
+		box[i].OnShow();
+	}*/
 	man.OnShow();
 }
 
@@ -563,7 +653,7 @@ void CGameStateRun::setBoxDownIs(Map* map, int num) {
 }
 
 bool CGameStateRun::boxCheck(int boxX, int boxY) {
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 8; i++) {
 		if (box[i].getX() == boxX && box[i].getY() == boxY) {
 			return true;
 		}
@@ -572,7 +662,7 @@ bool CGameStateRun::boxCheck(int boxX, int boxY) {
 }
 
 int CGameStateRun::boxNumberCheck(int boxX, int boxY) {
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 8; i++) {
 		if (box[i].getX() == boxX && box[i].getY() == boxY) {
 			return i;
 		}
@@ -581,12 +671,40 @@ int CGameStateRun::boxNumberCheck(int boxX, int boxY) {
 }
 
 bool CGameStateRun::checkWin() {
-	for (int i = 0; i < 4; i++) {
-		box[i].setIsOnGoal(&gamemap);
+	switch (whichMap){
+	case 1:
+		for (int i = 0; i < gamemap1.getBoxNum(); i++) {
+			box[i].setIsOnGoal(&gamemap1);
+			if (false == box[i].isOnGoal()) {
+				return false;
+			}
+		}
+		break;
+	case 2:
+		for (int i = 0; i < gamemap2.getBoxNum(); i++) {
+			box[i].setIsOnGoal(&gamemap2);
+			if (false == box[i].isOnGoal()) {
+				return false;
+			}
+		}
+		break;
+	case 3:
+		for (int i = 0; i < gamemap3.getBoxNum(); i++) {
+			box[i].setIsOnGoal(&gamemap3);
+			if (false == box[i].isOnGoal()) {
+				return false;
+			}
+		}
+		break;
+	default:
+		break;
+	}
+	/*for (int i = 0; i < 5; i++) {
+		box[i].setIsOnGoal(&gamemap1);
 		if (false == box[i].isOnGoal()) {
 			return false;
 		}
-	}
+	}*/
 	return true;
 }
 }

@@ -121,10 +121,13 @@ namespace game_framework {
 		CInteger		hits_left;	// 剩下的撞擊數
 		CBouncingBall   bball;		// 反覆彈跳的球
 
-		Map gamemap;
-		Box box[4];
+		Map1 gamemap1;
+		Map2 gamemap2;
+		Map3 gamemap3;
+		Box box[8];
 		Character man;
 		int whichBox = 0;
+		int whichMap = 1;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////

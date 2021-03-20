@@ -22,9 +22,9 @@ namespace game_framework {
 		box.LoadBitmap(IDB_BOX, RGB(255, 255, 255));
 	}
 
-	void Box::OnMove(Map* map){
+	/*void Box::OnMove(Map* map){
 		
-	}
+	}*/
 
 	void Box::OnShow() {
 		box.SetTopLeft(x, y);

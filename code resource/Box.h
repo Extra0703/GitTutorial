@@ -11,7 +11,7 @@ namespace game_framework {
 	public:
 		Box();
 		void LoadBitmap();
-		void OnMove(Map* map);
+		/*void OnMove(Map* map);*/
 		void OnShow();
 		bool isOnGoal();
 		void setIsOnGoal(Map* map);
