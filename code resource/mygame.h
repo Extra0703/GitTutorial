@@ -45,10 +45,20 @@
 #include "Box.h"
 #include "Character.h"
 
+/////////////////////////////////////////////////////////////////////////////
+// 參考文件裡，eraser專心移動，ball來判斷有沒有撞到，到mygame再處理onmove
+// 在box寫碰到人物，character專心移動，map判斷他們有沒有撞牆(和ball一樣寫法)
+// 總之，不要寫上下左右分別是啥的method
+// character專心移動，box寫hitBox(回傳bool)和hitCharacter(回傳有哪裡撞到)，map寫hitWall(回傳bool)
+/////////////////////////////////////////////////////////////////////////////
+// map負責OnShow()，但不設定box和character的座標，給撞牆判斷
+/////////////////////////////////////////////////////////////////////////////
+
 namespace game_framework {
 	/////////////////////////////////////////////////////////////////////////////
 	// Constants
 	/////////////////////////////////////////////////////////////////////////////
+
 
 	enum AUDIO_ID {				// 定義各種音效的編號
 		AUDIO_DING,				// 0
@@ -67,11 +77,45 @@ namespace game_framework {
 		void OnInit();  								// 遊戲的初值及圖形設定
 		void OnBeginState();							// 設定每次重玩所需的變數
 		void OnKeyUp(UINT, UINT, UINT); 				// 處理鍵盤Up的動作
-		void OnLButtonDown(UINT nFlags, CPoint point);  // 處理滑鼠的動作
 	protected:
 		void OnShow();									// 顯示這個狀態的遊戲畫面
 	private:
-		CMovingBitmap logo;								// csie的logo
+		CMovingBitmap homepage;							// 倉庫番
+		CMovingBitmap background;						// 背景箱子
+		CMovingBitmap menu;								// 選單1
+		CMovingBitmap menuInv;							// 選單2
+		CMovingBitmap play;								// 遊玩1
+		CMovingBitmap playInv;							// 遊玩2
+		CMovingBitmap helpText1;
+
+		CMovingBitmap stage1;							// 關卡1
+		CMovingBitmap stage1Inv;
+		CMovingBitmap stage2;							// 關卡2
+		CMovingBitmap stage2Inv;
+		CMovingBitmap stage3;							// 關卡3
+		CMovingBitmap stage3Inv;
+		CMovingBitmap stage4;							// 關卡4
+		CMovingBitmap stage4Inv;
+		CMovingBitmap stage5;							// 關卡5
+		CMovingBitmap stage5Inv;
+		CMovingBitmap stage6;							// 關卡6
+		CMovingBitmap stage6Inv;
+		CMovingBitmap stage7;							// 關卡7
+		CMovingBitmap stage7Inv;
+		CMovingBitmap stage8;							// 關卡8
+		CMovingBitmap stage8Inv;
+		CMovingBitmap stage9;							// 關卡9
+		CMovingBitmap stage9Inv;
+		CMovingBitmap stage10;							// 關卡10
+		CMovingBitmap stage10Inv;
+		CMovingBitmap stage11;							// 關卡11
+		CMovingBitmap stage11Inv;
+		CMovingBitmap stage12;							// 關卡12
+		CMovingBitmap stage12Inv;
+
+		int chooseMenu;									// 目前是選哪個 菜單選項
+		int chooseStage;								// 目前是選哪個 關卡
+		bool inChooseStage;								// 選擇關卡中
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -87,47 +131,32 @@ namespace game_framework {
 		void OnInit();  								// 遊戲的初值及圖形設定
 		void OnKeyDown(UINT, UINT, UINT);
 		void OnKeyUp(UINT, UINT, UINT);
-		void OnLButtonDown(UINT nFlags, CPoint point);  // 處理滑鼠的動作
-		void OnLButtonUp(UINT nFlags, CPoint point);	// 處理滑鼠的動作
-		void OnMouseMove(UINT nFlags, CPoint point);	// 處理滑鼠的動作 
-		void OnRButtonDown(UINT nFlags, CPoint point);  // 處理滑鼠的動作
-		void OnRButtonUp(UINT nFlags, CPoint point);	// 處理滑鼠的動作
-
-		void setManLeftIs(Map* map); // 這4個函式每一次移動都要做
-		void setManRightIs(Map* map);
-		void setManUpIs(Map* map);
-		void setManDownIs(Map* map);
-
-		void setBoxLeftIs(Map* map, int num); // 這4個函式每一次移動都要做
-		void setBoxRightIs(Map* map, int num);
-		void setBoxUpIs(Map* map, int num);
-		void setBoxDownIs(Map* map, int num);
-
-		bool boxCheck(int boxX, int boxY);
-		int boxNumberCheck(int boxX, int boxY);
-
-		bool checkWin();
-
 	protected:
 		void OnMove();									// 移動遊戲元素
 		void OnShow();									// 顯示這個狀態的遊戲畫面
 	private:
-		const int		NUMBALLS;	// 球的總數
-		CMovingBitmap	background;	// 背景圖
-		CMovingBitmap	help;		// 說明圖
-		CBall			*ball;		// 球的陣列
-		CMovingBitmap	corner;		// 角落圖
-		CEraser			eraser;		// 拍子
-		CInteger		hits_left;	// 剩下的撞擊數
-		CBouncingBall   bball;		// 反覆彈跳的球
-
-		Map1 gamemap1;
+		void SetObjectPosition(Map gameMap);			// 依據不同地圖，設定箱子和人物物件位置
+		void CheckManHitWall(Map gameMap);				// 依據不同地圖，判斷人物有沒有撞牆
+		void CheckManHitBox(Map gameMap);				// 依據不同地圖，判斷人物有沒有撞箱子
+		bool CheckWin(Map gameMap);						// 判斷該地圖箱子有沒有都在終點上
+		CMovingBitmap background;						// 白底背景
+		Character man;									// 人物物件
+		Box box[8];										// 箱子物件
+		Map1 gamemap1;									// 地圖物件
 		Map2 gamemap2;
 		Map3 gamemap3;
-		Box box[8];
-		Character man;
-		int whichBox = 0;
-		int whichMap = 1;
+		Map4 gamemap4;
+		Map5 gamemap5;
+		Map6 gamemap6;
+		Map7 gamemap7;
+		Map8 gamemap8;
+		Map9 gamemap9;
+		Map10 gamemap10;
+		Map11 gamemap11;
+		Map12 gamemap12;
+
+		// 下面的先不要動
+		int whichMap;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -140,11 +169,22 @@ namespace game_framework {
 		CGameStateOver(CGame *g);
 		void OnBeginState();							// 設定每次重玩所需的變數
 		void OnInit();
+		void OnKeyUp(UINT, UINT, UINT); 				// 處理鍵盤Down的動作
 	protected:
 		void OnMove();									// 移動遊戲元素
 		void OnShow();									// 顯示這個狀態的遊戲畫面
 	private:
 		int counter;	// 倒數之計數器
+		int chooseMenu;		// 選哪個
+
+		CMovingBitmap chooseStage;						// 回去選關卡
+		CMovingBitmap chooseStageInv;
+		CMovingBitmap exit;								// 返回主選單
+		CMovingBitmap exitInv;
+		CMovingBitmap nextStage;						// 去下一關
+		CMovingBitmap nextStageInv;
+
+		CMovingBitmap sign;								// 恭喜過關
 	};
 
 }

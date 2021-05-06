@@ -1,39 +1,29 @@
 namespace game_framework {
 	/////////////////////////////////////////////////////////////////////////////
-	// 思路 
-	//
-	// box 應該要寫在 map 內?
-	// 知道是箱子還不夠，還需要知道是"幾號箱子"
+	// 總之，把上下左右是啥的method刪掉
+	// 和ball一樣，寫碰到人物的method，還要寫碰到box的method
+	// OnMove改成當碰到人物，判斷左上xy、右下xy，是哪個導致的(左右優先，再上下)
+	// 移動的大小設定成剛好與character邊貼邊，如果會撞牆
+	// 改成與牆邊貼邊，而character與box邊貼邊
 	/////////////////////////////////////////////////////////////////////////////
 
-	class Box
-	{
+	class Box{
 	public:
 		Box();
-		void LoadBitmap();
-		/*void OnMove(Map* map);*/
+		bool HitBox(Box *box);											// 是否碰到box
+		void OnMove();
 		void OnShow();
-		bool isOnGoal();
-		void setIsOnGoal(Map* map);
-		void setBoxNumber(int num);
-		int getBoxNumber();
-		void SetXY(int nx, int ny);
-		int getX();
-		int getY();
-		void setLeftIs(int type);
-		void setRightIs(int type);
-		void setUpIs(int type);
-		void setDownIs(int type);
-		int getLeftIs();
-		int getRightIs();
-		int getUpIs();
-		int getDownIs();
-
+		void LoadBitmap();				// 載入圖形
+		void SetX1Y1(int x, int y);		// 設定左上角 xy 座標
+		void SetX2Y2(int x, int y);		// 設定右下角 xy 座標
+		int  GetX1();					// box左上角 x 座標
+		int  GetY1();					// box左上角 y 座標
+		int  GetX2();					// box右下角 x 座標
+		int  GetY2();					// box右下角 y 座標
 	protected:
-		CMovingBitmap box;
-		int x, y;					// 箱子左上角座標
-		bool onGoal;				// 在終點上?
-		int boxNumber;				// 幾號箱子
-		int leftIs, rightIs, upIs, downIs;	// 箱子上下左右分別是甚麼
+		CMovingBitmap chest;		// 載入箱子圖像
+		int x1, y1;					// 左上座標
+	private:
+		bool HitRectangle(int tx1, int ty1, int tx2, int ty2);	// 是否碰到參數範圍的矩形
 	};
 }

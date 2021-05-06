@@ -1,48 +1,39 @@
 namespace game_framework {
 	/////////////////////////////////////////////////////////////////////////////
-	// 思路 
-	//
-	// 移動沒甚麼問題，但是碰撞該如何處理?
-	// 寫 hitWall 和 hitBox ，box 則要寫 hitWall
-	// 有沒有能只用 map 的二維陣列判斷會不會撞到牆啊?
-	// 現在的 x, y 除以 64取整數，用 map 的 getMap()，得到目前位置
-	// 每動一步前都計算下一步的位置，會不會是 wall 
-	// 直接用座標寫好了，這樣比較直覺，也比較簡單
-	// 設定好左上角和右下角的座標，再判斷有沒有撞到
-	//
-	// 想在 SetMovingLeft 裡面做 nextStepHitLeftWall 判斷
-	// 判斷還是寫到 mygame.cpp 好了
+	// 總之，把上下左右是啥的method刪掉
+	// character專心做移動，碰到box的判斷交給box
+	// 撞牆判斷交給map
 	/////////////////////////////////////////////////////////////////////////////
 
 	class Character {
 	public:
 		Character();
-		void LoadBitmap();
+		void HitBox(Box *chest);
 		void OnMove();
 		void OnShow();
+		void LoadBitmap();				// 載入圖形
 		void SetMovingDown(bool flag);	// 設定是否正在往下移動
 		void SetMovingLeft(bool flag);	// 設定是否正在往左移動
 		void SetMovingRight(bool flag); // 設定是否正在往右移動
 		void SetMovingUp(bool flag);	// 設定是否正在往上移動
-		void SetXY(int nx, int ny);
-		int getX();
-		int getY();
-		void setLeftIs(int type);
-		void setRightIs(int type);
-		void setUpIs(int type);
-		void setDownIs(int type);
-		int getLeftIs();
-		int getRightIs();
-		int getUpIs();
-		int getDownIs();
+		void SetX1Y1(int x, int y);		// 設定左上角 xy 座標
+		void SetX2Y2(int x, int y);		// 設定右下角 xy 座標
+		int  GetX1();					// character左上角 x 座標
+		int  GetY1();					// character左上角 y 座標
+		int  GetX2();					// character右下角 x 座標
+		int  GetY2();					// character右下角 y 座標
 
+		bool checkHitBox[4];			// 哪裡撞箱子的陣列
 	protected:
-		CMovingBitmap man;
-		int x, y;					// 人物左上角 座標
+		CAnimation up, down, left, right;		// 人物移動的animation
+		// chara 記得找時間清一下，現在先放著
+		CMovingBitmap chara;		// 載入人物圖像
+		int x1, y1;					// 左上座標
 		bool isMovingDown;			// 是否正在往下移動
 		bool isMovingLeft;			// 是否正在往左移動
 		bool isMovingRight;			// 是否正在往右移動
 		bool isMovingUp;			// 是否正在往上移動
-		int leftIs, rightIs, upIs, downIs;	// 人物上下左右分別是甚麼
+	private:
+		bool HitRectangle(int tx1, int ty1, int tx2, int ty2);	// 是否碰到參數範圍的矩形
 	};
 }

@@ -60,6 +60,10 @@
 #include "mygame.h"
 
 namespace game_framework {
+	// 目前關卡
+	int newStage = 1;
+	// 是否進入關卡選單
+	bool initStage = false;
 /////////////////////////////////////////////////////////////////////////////
 // 這個class為遊戲的遊戲開頭畫面物件
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +71,9 @@ namespace game_framework {
 CGameStateInit::CGameStateInit(CGame *g)
 : CGameState(g)
 {
+	chooseMenu = 0;
+	chooseStage = 0;
+	inChooseStage = false;
 }
 
 void CGameStateInit::OnInit()
@@ -79,30 +86,101 @@ void CGameStateInit::OnInit()
 	//
 	// 開始載入資料
 	//
-	logo.LoadBitmap(IDB_BACKGROUND);
-	Sleep(300);				// 放慢，以便看清楚進度，實際遊戲請刪除此Sleep
-	//
-	// 此OnInit動作會接到CGameStaterRun::OnInit()，所以進度還沒到100%
-	//
+	homepage.LoadBitmap(IDB_HOMEPAGE, RGB(255, 255, 255));
+	background.LoadBitmap(IDB_WALL, RGB(255, 255, 255));
+	menu.LoadBitmap(IDB_MENU, RGB(255, 255, 255));
+	menuInv.LoadBitmap(IDB_MENUINV, RGB(255, 255, 255));
+	play.LoadBitmap(IDB_PLAY, RGB(255, 255, 255));
+	playInv.LoadBitmap(IDB_PLAYINV, RGB(255, 255, 255));
+	helpText1.LoadBitmap(IDB_HELPTEXT1, RGB(255, 255, 255));
+
+	stage1.LoadBitmap(IDB_STAGE1, RGB(255, 255, 255));
+	stage1Inv.LoadBitmap(IDB_STAGE1INV, RGB(255, 255, 255));
+	stage2.LoadBitmap(IDB_STAGE2, RGB(255, 255, 255));
+	stage2Inv.LoadBitmap(IDB_STAGE2INV, RGB(255, 255, 255));
+	stage3.LoadBitmap(IDB_STAGE3, RGB(255, 255, 255));
+	stage3Inv.LoadBitmap(IDB_STAGE3INV, RGB(255, 255, 255));
+	stage4.LoadBitmap(IDB_STAGE4, RGB(255, 255, 255));
+	stage4Inv.LoadBitmap(IDB_STAGE4INV, RGB(255, 255, 255));
+	stage5.LoadBitmap(IDB_STAGE5, RGB(255, 255, 255));
+	stage5Inv.LoadBitmap(IDB_STAGE5INV, RGB(255, 255, 255));
+	stage6.LoadBitmap(IDB_STAGE6, RGB(255, 255, 255));
+	stage6Inv.LoadBitmap(IDB_STAGE6INV, RGB(255, 255, 255));
+	stage7.LoadBitmap(IDB_STAGE7, RGB(255, 255, 255));
+	stage7Inv.LoadBitmap(IDB_STAGE7INV, RGB(255, 255, 255));
+	stage8.LoadBitmap(IDB_STAGE8, RGB(255, 255, 255));
+	stage8Inv.LoadBitmap(IDB_STAGE8INV, RGB(255, 255, 255));
+	stage9.LoadBitmap(IDB_STAGE9, RGB(255, 255, 255));
+	stage9Inv.LoadBitmap(IDB_STAGE9INV, RGB(255, 255, 255));
+	stage10.LoadBitmap(IDB_STAGE10, RGB(255, 255, 255));
+	stage10Inv.LoadBitmap(IDB_STAGE10INV, RGB(255, 255, 255));
+	stage11.LoadBitmap(IDB_STAGE11, RGB(255, 255, 255));
+	stage11Inv.LoadBitmap(IDB_STAGE11INV, RGB(255, 255, 255));
+	stage12.LoadBitmap(IDB_STAGE12, RGB(255, 255, 255));
+	stage12Inv.LoadBitmap(IDB_STAGE12INV, RGB(255, 255, 255));
 }
 
 void CGameStateInit::OnBeginState()
 {
+	inChooseStage = initStage;
 }
 
 void CGameStateInit::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
+	const char KEY_LEFT = 0x25; // keyboard左箭頭
+	const char KEY_RIGHT = 0x27; // keyboard右箭頭
 	const char KEY_ESC = 27;
 	const char KEY_SPACE = ' ';
-	if (nChar == KEY_SPACE)
-		GotoGameState(GAME_STATE_RUN);						// 切換至GAME_STATE_RUN
-	else if (nChar == KEY_ESC)								// Demo 關閉遊戲的方法
-		PostMessage(AfxGetMainWnd()->m_hWnd, WM_CLOSE,0,0);	// 關閉遊戲
-}
 
-void CGameStateInit::OnLButtonDown(UINT nFlags, CPoint point)
-{
-	GotoGameState(GAME_STATE_RUN);		// 切換至GAME_STATE_RUN
+	if (nChar == KEY_LEFT && chooseMenu > 1) {
+		chooseMenu = chooseMenu - 1;
+	}
+
+	if (nChar == KEY_RIGHT && chooseMenu < 2) {
+		chooseMenu = chooseMenu + 1;
+	}
+
+	if (nChar == KEY_LEFT && chooseStage > 1) {
+		chooseStage = chooseStage - 1;
+	}
+
+	if (nChar == KEY_RIGHT && chooseStage < 12) {
+		chooseStage = chooseStage + 1;
+	}
+
+	// 選擇關卡
+	if (nChar == KEY_SPACE && inChooseStage) {
+		// 要去改 gameStateRun 的 whichMap
+		newStage = chooseStage;
+		GotoGameState(GAME_STATE_RUN);
+	}
+
+	// 記得切換輸入法lol
+	if (nChar == KEY_SPACE) {
+		switch (chooseMenu)
+		{
+			case 1:
+				inChooseStage = true;
+				break;
+			case 2:	// 這裡有 Bug
+				GotoGameState(GAME_STATE_RUN);						// 切換至GAME_STATE_RUN
+				break;
+			default:
+				break;
+		}
+	}
+
+
+	if (nChar == KEY_ESC) {								// Demo 關閉遊戲的方法
+		if (inChooseStage) {
+			chooseMenu = 0;
+			chooseStage = 0;
+			inChooseStage = false;
+		}
+		else {
+			PostMessage(AfxGetMainWnd()->m_hWnd, WM_CLOSE, 0, 0);	// 關閉遊戲
+		}
+	}
 }
 
 void CGameStateInit::OnShow()
@@ -110,25 +188,142 @@ void CGameStateInit::OnShow()
 	//
 	// 貼上logo
 	//
-	logo.SetTopLeft((SIZE_X - logo.Width())/2, SIZE_Y/8);
-	logo.ShowBitmap();
-	//
-	// Demo螢幕字型的使用，不過開發時請盡量避免直接使用字型，改用CMovingBitmap比較好
-	//
-	CDC *pDC = CDDraw::GetBackCDC();			// 取得 Back Plain 的 CDC 
-	CFont f,*fp;
-	f.CreatePointFont(160,"Times New Roman");	// 產生 font f; 160表示16 point的字
-	fp=pDC->SelectObject(&f);					// 選用 font f
-	pDC->SetBkColor(RGB(0,0,0));
-	pDC->SetTextColor(RGB(255,255,0));
-	pDC->TextOut(120,220,"Please click mouse or press SPACE to begin.");
-	pDC->TextOut(5,395,"Press Ctrl-F to switch in between window mode and full screen mode.");
-	if (ENABLE_GAME_PAUSE)
-		pDC->TextOut(5,425,"Press Ctrl-Q to pause the Game.");
-	pDC->TextOut(5,455,"Press Alt-F4 or ESC to Quit.");
-	pDC->SelectObject(fp);						// 放掉 font f (千萬不要漏了放掉)
-	CDDraw::ReleaseBackCDC();					// 放掉 Back Plain 的 CDC
-}								
+	for (int i = 0; i < 15; i++) {
+		for (int j = 0; j < 10; j++) {
+			background.SetTopLeft(i * 64, j * 64);
+			background.ShowBitmap();
+		}
+	}
+
+	if (!inChooseStage) {
+		homepage.SetTopLeft((SIZE_X - homepage.Width()) / 2, SIZE_Y / 8);
+		menu.SetTopLeft(50, 480);
+		menuInv.SetTopLeft(50, 480);
+		play.SetTopLeft(350, 480);
+		playInv.SetTopLeft(350, 480);
+		menu.ShowBitmap();
+		play.ShowBitmap();
+		homepage.ShowBitmap();
+
+		if (chooseMenu == 1) {
+			menuInv.ShowBitmap();
+			play.ShowBitmap();
+		}
+		else if (chooseMenu == 2) {
+			menu.ShowBitmap();
+			playInv.ShowBitmap();
+		}
+		else {
+			menu.ShowBitmap();
+			play.ShowBitmap();
+		}
+	}
+	else {
+		helpText1.SetTopLeft(48, 48);
+		helpText1.ShowBitmap();
+		switch (chooseStage)
+		{
+			case 0:
+				stage1.SetTopLeft((SIZE_X - stage1.Width()) / 2, SIZE_Y / 4);
+				stage1.ShowBitmap();
+				stage2.SetTopLeft(448 + (SIZE_X - stage2.Width()) / 2, SIZE_Y / 4);
+				stage2.ShowBitmap();
+				break;
+			case 1:
+				stage1Inv.SetTopLeft((SIZE_X - stage1Inv.Width()) / 2, SIZE_Y / 4);
+				stage1Inv.ShowBitmap();
+				stage2.SetTopLeft(448 + (SIZE_X - stage2.Width()) / 2, SIZE_Y / 4);
+				stage2.ShowBitmap();
+				break;
+			case 2:
+				stage1.SetTopLeft(-448 + (SIZE_X - stage1.Width()) / 2, SIZE_Y / 4);
+				stage1.ShowBitmap();
+				stage2Inv.SetTopLeft((SIZE_X - stage2Inv.Width()) / 2, SIZE_Y / 4);
+				stage2Inv.ShowBitmap();
+				stage3.SetTopLeft(448 + (SIZE_X - stage3.Width()) / 2, SIZE_Y / 4);
+				stage3.ShowBitmap();
+				break;
+			case 3:
+				stage2.SetTopLeft(-448 + (SIZE_X - stage2.Width()) / 2, SIZE_Y / 4);
+				stage2.ShowBitmap();
+				stage3Inv.SetTopLeft((SIZE_X - stage3Inv.Width()) / 2, SIZE_Y / 4);
+				stage3Inv.ShowBitmap();
+				stage4.SetTopLeft(448 + (SIZE_X - stage4.Width()) / 2, SIZE_Y / 4);
+				stage4.ShowBitmap();
+				break;
+			case 4:
+				stage3.SetTopLeft(-448 + (SIZE_X - stage3.Width()) / 2, SIZE_Y / 4);
+				stage3.ShowBitmap();
+				stage4Inv.SetTopLeft((SIZE_X - stage4Inv.Width()) / 2, SIZE_Y / 4);
+				stage4Inv.ShowBitmap();
+				stage5.SetTopLeft(448 + (SIZE_X - stage5.Width()) / 2, SIZE_Y / 4);
+				stage5.ShowBitmap();
+				break;
+			case 5:
+				stage4.SetTopLeft(-448 + (SIZE_X - stage4.Width()) / 2, SIZE_Y / 4);
+				stage4.ShowBitmap();
+				stage5Inv.SetTopLeft((SIZE_X - stage5Inv.Width()) / 2, SIZE_Y / 4);
+				stage5Inv.ShowBitmap();
+				stage6.SetTopLeft(448 + (SIZE_X - stage6.Width()) / 2, SIZE_Y / 4);
+				stage6.ShowBitmap();
+				break;
+			case 6:
+				stage5.SetTopLeft(-448 + (SIZE_X - stage5.Width()) / 2, SIZE_Y / 4);
+				stage5.ShowBitmap();
+				stage6Inv.SetTopLeft((SIZE_X - stage6Inv.Width()) / 2, SIZE_Y / 4);
+				stage6Inv.ShowBitmap();
+				stage7.SetTopLeft(448 + (SIZE_X - stage7.Width()) / 2, SIZE_Y / 4);
+				stage7.ShowBitmap();
+				break;
+			case 7:
+				stage6.SetTopLeft(-448 + (SIZE_X - stage6.Width()) / 2, SIZE_Y / 4);
+				stage6.ShowBitmap();
+				stage7Inv.SetTopLeft((SIZE_X - stage7Inv.Width()) / 2, SIZE_Y / 4);
+				stage7Inv.ShowBitmap();
+				stage8.SetTopLeft(448 + (SIZE_X - stage8.Width()) / 2, SIZE_Y / 4);
+				stage8.ShowBitmap();
+				break;
+			case 8:
+				stage7.SetTopLeft(-448 + (SIZE_X - stage7.Width()) / 2, SIZE_Y / 4);
+				stage7.ShowBitmap();
+				stage8Inv.SetTopLeft((SIZE_X - stage8Inv.Width()) / 2, SIZE_Y / 4);
+				stage8Inv.ShowBitmap();
+				stage9.SetTopLeft(448 + (SIZE_X - stage9.Width()) / 2, SIZE_Y / 4);
+				stage9.ShowBitmap();
+				break;
+			case 9:
+				stage8.SetTopLeft(-448 + (SIZE_X - stage8.Width()) / 2, SIZE_Y / 4);
+				stage8.ShowBitmap();
+				stage9Inv.SetTopLeft((SIZE_X - stage9Inv.Width()) / 2, SIZE_Y / 4);
+				stage9Inv.ShowBitmap();
+				stage10.SetTopLeft(448 + (SIZE_X - stage10.Width()) / 2, SIZE_Y / 4);
+				stage10.ShowBitmap();
+				break;
+			case 10:
+				stage9.SetTopLeft(-448 + (SIZE_X - stage9.Width()) / 2, SIZE_Y / 4);
+				stage9.ShowBitmap();
+				stage10Inv.SetTopLeft((SIZE_X - stage10Inv.Width()) / 2, SIZE_Y / 4);
+				stage10Inv.ShowBitmap();
+				stage11.SetTopLeft(448 + (SIZE_X - stage11.Width()) / 2, SIZE_Y / 4);
+				stage11.ShowBitmap();
+				break;
+			case 11:
+				stage10.SetTopLeft(-448 + (SIZE_X - stage10.Width()) / 2, SIZE_Y / 4);
+				stage10.ShowBitmap();
+				stage11Inv.SetTopLeft((SIZE_X - stage11Inv.Width()) / 2, SIZE_Y / 4);
+				stage11Inv.ShowBitmap();
+				stage12.SetTopLeft(448 + (SIZE_X - stage12.Width()) / 2, SIZE_Y / 4);
+				stage12.ShowBitmap();
+				break;
+			case 12:
+				stage11.SetTopLeft(-448 + (SIZE_X - stage11.Width()) / 2, SIZE_Y / 4);
+				stage11.ShowBitmap();
+				stage12Inv.SetTopLeft((SIZE_X - stage12Inv.Width()) / 2, SIZE_Y / 4);
+				stage12Inv.ShowBitmap();
+				break;
+		}
+	}
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // 這個class為遊戲的結束狀態(Game Over)
@@ -137,18 +332,15 @@ void CGameStateInit::OnShow()
 CGameStateOver::CGameStateOver(CGame *g)
 : CGameState(g)
 {
+	chooseMenu = 0;
 }
 
 void CGameStateOver::OnMove()
 {
-	counter--;
-	if (counter < 0)
-		GotoGameState(GAME_STATE_INIT);
 }
 
 void CGameStateOver::OnBeginState()
 {
-	counter = 30 * 5; // 5 seconds
 }
 
 void CGameStateOver::OnInit()
@@ -161,6 +353,15 @@ void CGameStateOver::OnInit()
 	//
 	// 開始載入資料
 	//
+	chooseStage.LoadBitmap(IDB_CHOOSESTAGE, RGB(255, 255, 255));
+	chooseStageInv.LoadBitmap(IDB_CHOOSESTAGEINV, RGB(255, 255, 255));
+	exit.LoadBitmap(IDB_EXIT, RGB(255, 255, 255));
+	exitInv.LoadBitmap(IDB_EXITINV, RGB(255, 255, 255));
+	nextStage.LoadBitmap(IDB_NEXTSTAGE, RGB(255, 255, 255));
+	nextStageInv.LoadBitmap(IDB_NEXTSTAGEINV, RGB(255, 255, 255));
+
+	sign.LoadBitmap(IDB_SIGN, RGB(255, 255, 255));
+
 	Sleep(300);				// 放慢，以便看清楚進度，實際遊戲請刪除此Sleep
 	//
 	// 最終進度為100%
@@ -168,91 +369,143 @@ void CGameStateOver::OnInit()
 	ShowInitProgress(100);
 }
 
+void CGameStateOver::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	const char KEY_UP = 0x26; // keyboard上箭頭
+	const char KEY_DOWN = 0x28; // keyboard下箭頭
+	const char KEY_ESC = 27;
+	const char KEY_SPACE = ' ';
+
+	if (nChar == KEY_UP && chooseMenu > 1) {
+		chooseMenu = chooseMenu - 1;
+	}
+
+	if (nChar == KEY_DOWN && chooseMenu < 3) {
+		chooseMenu = chooseMenu + 1;
+	}
+
+	if (nChar == KEY_SPACE) {
+		switch (chooseMenu)
+		{
+		case 1: // 下一關
+			GotoGameState(GAME_STATE_RUN);						// 切換至GAME_STATE_RUN
+			break;
+		case 2: // 選擇關卡
+			initStage = true;
+			GotoGameState(GAME_STATE_INIT);						// 切換至GAME_STATE_INIT
+			break;
+		case 3: // 
+			initStage = false;
+			newStage = 1;
+			GotoGameState(GAME_STATE_INIT);						// 切換至GAME_STATE_INIT
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 void CGameStateOver::OnShow()
 {
-	CDC *pDC = CDDraw::GetBackCDC();			// 取得 Back Plain 的 CDC 
-	CFont f,*fp;
-	f.CreatePointFont(160,"Times New Roman");	// 產生 font f; 160表示16 point的字
-	fp=pDC->SelectObject(&f);					// 選用 font f
-	pDC->SetBkColor(RGB(0,0,0));
-	pDC->SetTextColor(RGB(255,255,0));
-	char str[80];								// Demo 數字對字串的轉換
-	sprintf(str, "Game Over ! (%d)", counter / 30);
-	pDC->TextOut(240,210,str);
-	pDC->SelectObject(fp);						// 放掉 font f (千萬不要漏了放掉)
-	CDDraw::ReleaseBackCDC();					// 放掉 Back Plain 的 CDC
+	nextStage.SetTopLeft(600, 100);
+	nextStageInv.SetTopLeft(600, 100);
+	chooseStage.SetTopLeft(600, 300);
+	chooseStageInv.SetTopLeft(600, 300);
+	exit.SetTopLeft(600, 500);
+	exitInv.SetTopLeft(600, 500);
+	sign.SetTopLeft(75, 75);
+
+	switch (chooseMenu)
+	{
+	case 1:
+		if (newStage != 13) {	// 12 + 1
+			nextStageInv.ShowBitmap();
+		}
+		chooseStage.ShowBitmap();
+		exit.ShowBitmap();
+		break;
+	case 2:
+		if (newStage != 13) {
+			nextStage.ShowBitmap();
+		}
+		chooseStageInv.ShowBitmap();
+		exit.ShowBitmap();
+		break;
+	case 3:
+		if (newStage != 13) {
+			nextStage.ShowBitmap();
+		}
+		chooseStage.ShowBitmap();
+		exitInv.ShowBitmap();
+		break;
+	default:
+		if (newStage != 13) {
+			nextStage.ShowBitmap();
+		}
+		chooseStage.ShowBitmap();
+		exit.ShowBitmap();
+		break;
+	}
+
+	sign.ShowBitmap();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // 這個class為遊戲的遊戲執行物件，主要的遊戲程式都在這裡
 /////////////////////////////////////////////////////////////////////////////
 
-CGameStateRun::CGameStateRun(CGame *g)
-: CGameState(g), NUMBALLS(28)
+CGameStateRun::CGameStateRun(CGame *g) : CGameState(g)
 {
-	ball = new CBall [NUMBALLS];
+	whichMap = 1;
 }
 
 CGameStateRun::~CGameStateRun()
 {
-	delete [] ball;
 }
 
 void CGameStateRun::OnBeginState()
 {
-	const int BALL_GAP = 90;
-	const int BALL_XY_OFFSET = 45;
-	const int BALL_PER_ROW = 7;
-	const int HITS_LEFT = 10;
-	const int HITS_LEFT_X = 590;
-	const int HITS_LEFT_Y = 0;
-	const int BACKGROUND_X = 60;
-	const int ANIMATION_SPEED = 15;
-	for (int i = 0; i < NUMBALLS; i++) {				// 設定球的起始座標
-		int x_pos = i % BALL_PER_ROW;
-		int y_pos = i / BALL_PER_ROW;
-		ball[i].SetXY(x_pos * BALL_GAP + BALL_XY_OFFSET, y_pos * BALL_GAP + BALL_XY_OFFSET);
-		ball[i].SetDelay(x_pos);
-		ball[i].SetIsAlive(true);
-	}
-	eraser.Initialize();
-	background.SetTopLeft(BACKGROUND_X,0);				// 設定背景的起始座標
-	help.SetTopLeft(0, SIZE_Y - help.Height());			// 設定說明圖的起始座標
-	hits_left.SetInteger(HITS_LEFT);					// 指定剩下的撞擊數
-	hits_left.SetTopLeft(HITS_LEFT_X,HITS_LEFT_Y);		// 指定剩下撞擊數的座標
-	CAudio::Instance()->Play(AUDIO_LAKE, true);			// 撥放 WAVE
-	CAudio::Instance()->Play(AUDIO_DING, false);		// 撥放 WAVE
-	CAudio::Instance()->Play(AUDIO_NTUT, true);			// 撥放 MIDI
+	whichMap = newStage;
 
-	//numOfBoxInMap[0] = gamemap1.getBoxNum();
-	//numOfBoxInMap[1] = gamemap2.getBoxNum();
-
-	int count = 0;
-	for (int i = 0; i < 15; i++) {
-		for (int j = 0; j < 10; j++) {
-			int flag;
-			switch (whichMap){
-			case 1:
-				flag = gamemap1.getMap(i, j);
-				break;
-			case 2:
-				flag = gamemap2.getMap(i, j);
-				break;
-			case 3:
-				flag = gamemap3.getMap(i, j);
-				break;
-			default:
-				break;
-			}
-			if (flag == 3) {
-				box[count].SetXY(i * 64, j * 64);
-				box[count].setBoxNumber(count);
-				count++;
-			}
-			if (flag == 4) {
-				man.SetXY(i * 64, j * 64);
-			}
-		}
+	switch (whichMap)
+	{
+	case 1:
+		SetObjectPosition(gamemap1);
+		break;
+	case 2:
+		SetObjectPosition(gamemap2);
+		break;
+	case 3:
+		SetObjectPosition(gamemap3);
+		break;
+	case 4:
+		SetObjectPosition(gamemap4);
+		break;
+	case 5:
+		SetObjectPosition(gamemap5);
+		break;
+	case 6:
+		SetObjectPosition(gamemap6);
+		break;
+	case 7:
+		SetObjectPosition(gamemap7);
+		break;
+	case 8:
+		SetObjectPosition(gamemap8);
+		break;
+	case 9:
+		SetObjectPosition(gamemap9);
+		break;
+	case 10:
+		SetObjectPosition(gamemap10);
+		break;
+	case 11:
+		SetObjectPosition(gamemap11);
+		break;
+	case 12:
+		SetObjectPosition(gamemap12);
+		break;
+	default:
+		break;
 	}
 }
 
@@ -265,143 +518,130 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 	//
 	// 移動背景圖的座標
 	//
-	if (background.Top() > SIZE_Y)
-		background.SetTopLeft(60 ,-background.Height());
-	background.SetTopLeft(background.Left(),background.Top()+1);
-	//
-	// 移動球
-	//
-	int i;
-	for (i=0; i < NUMBALLS; i++)
-		ball[i].OnMove();
-	//
-	// 移動擦子
-	//
-	eraser.OnMove();
-	//
-	// 判斷擦子是否碰到球
-	//
-	for (i=0; i < NUMBALLS; i++)
-		if (ball[i].IsAlive() && ball[i].HitEraser(&eraser)) {
-			ball[i].SetIsAlive(false);
-			CAudio::Instance()->Play(AUDIO_DING);
-			hits_left.Add(-1);
-			//
-			// 若剩餘碰撞次數為0，則跳到Game Over狀態
-			//
-			if (hits_left.GetInteger() <= 0) {
-				CAudio::Instance()->Stop(AUDIO_LAKE);	// 停止 WAVE
-				CAudio::Instance()->Stop(AUDIO_NTUT);	// 停止 MIDI
-				GotoGameState(GAME_STATE_OVER);
-			}
-		}
-	//
-	// 移動彈跳的球
-	//
-	bball.OnMove();
 
+	man.OnMove();
+	
 	switch (whichMap) {
 	case 1:
-		setManLeftIs(&gamemap1);
-		setManRightIs(&gamemap1);
-		setManUpIs(&gamemap1);
-		setManDownIs(&gamemap1);
-		for (int i = 0; i < gamemap1.getBoxNum(); i++) {
-			setBoxLeftIs(&gamemap1, i);
-			setBoxRightIs(&gamemap1, i);
-			setBoxUpIs(&gamemap1, i);
-			setBoxDownIs(&gamemap1, i);
+		CheckManHitBox(gamemap1);
+		CheckManHitWall(gamemap1);
+		if (CheckWin(gamemap1)) {
+			newStage = ++whichMap;
+			GotoGameState(GAME_STATE_OVER);
 		}
 		break;
 	case 2:
-		setManLeftIs(&gamemap2);
-		setManRightIs(&gamemap2);
-		setManUpIs(&gamemap2);
-		setManDownIs(&gamemap2);
-		for (int i = 0; i < gamemap2.getBoxNum(); i++) {
-			setBoxLeftIs(&gamemap2, i);
-			setBoxRightIs(&gamemap2, i);
-			setBoxUpIs(&gamemap2, i);
-			setBoxDownIs(&gamemap2, i);
+		CheckManHitBox(gamemap2);
+		CheckManHitWall(gamemap2);
+		if (CheckWin(gamemap2)) {
+			newStage = ++whichMap;
+			GotoGameState(GAME_STATE_OVER);
 		}
 		break;
 	case 3:
-		setManLeftIs(&gamemap3);
-		setManRightIs(&gamemap3);
-		setManUpIs(&gamemap3);
-		setManDownIs(&gamemap3);
-		for (int i = 0; i < gamemap3.getBoxNum(); i++) {
-			setBoxLeftIs(&gamemap3, i);
-			setBoxRightIs(&gamemap3, i);
-			setBoxUpIs(&gamemap3, i);
-			setBoxDownIs(&gamemap3, i);
+		CheckManHitBox(gamemap3);
+		CheckManHitWall(gamemap3);
+		if (CheckWin(gamemap3)) {
+			newStage = ++whichMap;
+			GotoGameState(GAME_STATE_OVER);
+		}
+		break;
+	case 4:
+		CheckManHitBox(gamemap4);
+		CheckManHitWall(gamemap4);
+		if (CheckWin(gamemap4)) {
+			newStage = ++whichMap;
+			GotoGameState(GAME_STATE_OVER);
+		}
+		break;
+	case 5:
+		CheckManHitBox(gamemap5);
+		CheckManHitWall(gamemap5);
+		if (CheckWin(gamemap5)) {
+			newStage = ++whichMap;
+			GotoGameState(GAME_STATE_OVER);
+		}
+		break;
+	case 6:
+		CheckManHitBox(gamemap6);
+		CheckManHitWall(gamemap6);
+		if (CheckWin(gamemap6)) {
+			newStage = ++whichMap;
+			GotoGameState(GAME_STATE_OVER);
+		}
+		break;
+	case 7:
+		CheckManHitBox(gamemap7);
+		CheckManHitWall(gamemap7);
+		if (CheckWin(gamemap7)) {
+			newStage = ++whichMap;
+			GotoGameState(GAME_STATE_OVER);
+		}
+		break;
+	case 8:
+		CheckManHitBox(gamemap8);
+		CheckManHitWall(gamemap8);
+		if (CheckWin(gamemap8)) {
+			newStage = ++whichMap;
+			GotoGameState(GAME_STATE_OVER);
+		}
+		break;
+	case 9:
+		CheckManHitBox(gamemap9);
+		CheckManHitWall(gamemap9);
+		if (CheckWin(gamemap9)) {
+			newStage = ++whichMap;
+			GotoGameState(GAME_STATE_OVER);
+		}
+		break;
+	case 10:
+		CheckManHitBox(gamemap10);
+		CheckManHitWall(gamemap10);
+		if (CheckWin(gamemap10)) {
+			newStage = ++whichMap;
+			GotoGameState(GAME_STATE_OVER);
+		}
+		break;
+	case 11:
+		CheckManHitBox(gamemap11);
+		CheckManHitWall(gamemap11);
+		if (CheckWin(gamemap11)) {
+			newStage = ++whichMap;
+			GotoGameState(GAME_STATE_OVER);
+		}
+		break;
+	case 12:
+		CheckManHitBox(gamemap12);
+		CheckManHitWall(gamemap12);
+		if (CheckWin(gamemap12)) {
+			newStage = ++whichMap;
+			GotoGameState(GAME_STATE_OVER);
 		}
 		break;
 	default:
 		break;
 	}
-
-	/*setManLeftIs(&gamemap1);
-	setManRightIs(&gamemap1);
-	setManUpIs(&gamemap1);
-	setManDownIs(&gamemap1);
-	for (int i = 0; i < 4; i++) {
-		setBoxLeftIs(&gamemap1, i);
-		setBoxRightIs(&gamemap1, i);
-		setBoxUpIs(&gamemap1, i);
-		setBoxDownIs(&gamemap1, i);
-	}*/
-	man.OnMove();
-
-	if (checkWin()/* && whichMap != 3*/) { // 可以確定有沒有贏了，此功能OK
-		//Sleep(1000);
-		whichMap++;
-		OnBeginState();
-	}
 }
 
 void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 {
-	//
-	// 當圖很多時，OnInit載入所有的圖要花很多時間。為避免玩遊戲的人
-	//     等的不耐煩，遊戲會出現「Loading ...」，顯示Loading的進度。
-	//
-	ShowInitProgress(33);	// 接個前一個狀態的進度，此處進度視為33%
-	//
-	// 開始載入資料
-	//
-	int i;
-	for (i = 0; i < NUMBALLS; i++)	
-		ball[i].LoadBitmap();								// 載入第i個球的圖形
-	eraser.LoadBitmap();
-	background.LoadBitmap(IDB_BACKGROUND);					// 載入背景的圖形
-	//
-	// 完成部分Loading動作，提高進度
-	//
-	ShowInitProgress(50);
-	Sleep(300); // 放慢，以便看清楚進度，實際遊戲請刪除此Sleep
-	//
-	// 繼續載入其他資料
-	//
-	help.LoadBitmap(IDB_HELP,RGB(255,255,255));				// 載入說明的圖形
-	corner.LoadBitmap(IDB_CORNER);							// 載入角落圖形
-	corner.ShowBitmap(background);							// 將corner貼到background
-	bball.LoadBitmap();										// 載入圖形
-	hits_left.LoadBitmap();									
-	CAudio::Instance()->Load(AUDIO_DING,  "sounds\\ding.wav");	// 載入編號0的聲音ding.wav
-	CAudio::Instance()->Load(AUDIO_LAKE,  "sounds\\lake.mp3");	// 載入編號1的聲音lake.mp3
-	CAudio::Instance()->Load(AUDIO_NTUT,  "sounds\\ntut.mid");	// 載入編號2的聲音ntut.mid
-	//
-	// 此OnInit動作會接到CGameStaterOver::OnInit()，所以進度還沒到100%
-	//
-
-	gamemap1.LoadBitmap();
-	gamemap2.LoadBitmap();
-	gamemap3.LoadBitmap();
+	background.LoadBitmap(IDB_BACKGROUND2);
+	man.LoadBitmap();
 	for (int i = 0; i < 8; i++) {
 		box[i].LoadBitmap();
 	}
-	man.LoadBitmap();
+	gamemap1.LoadBitmap();
+	gamemap2.LoadBitmap();
+	gamemap3.LoadBitmap();
+	gamemap4.LoadBitmap();
+	gamemap5.LoadBitmap();
+	gamemap6.LoadBitmap();
+	gamemap7.LoadBitmap();
+	gamemap8.LoadBitmap();
+	gamemap9.LoadBitmap();
+	gamemap10.LoadBitmap();
+	gamemap11.LoadBitmap();
+	gamemap12.LoadBitmap();
 }
 
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -417,43 +657,27 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 
 	if (nChar == KEY_LEFT) {
-		eraser.SetMovingLeft(true);
-		if (3 == man.getLeftIs()) {
-			whichBox = boxNumberCheck(man.getX() - 64, man.getY());
-			if (3 != box[whichBox].getLeftIs() && 1 != box[whichBox].getLeftIs()) {
-				box[whichBox].SetXY(box[whichBox].getX() - 64, box[whichBox].getY());
-			}
-		}
 		man.SetMovingLeft(true);
+		man.SetMovingRight(false);
+		man.SetMovingUp(false);
+		man.SetMovingDown(false);
 	}
 	if (nChar == KEY_RIGHT) {
-		eraser.SetMovingRight(true);
-		if (3 == man.getRightIs()) {
-			whichBox = boxNumberCheck(man.getX() + 64, man.getY());
-			if (3 != box[whichBox].getRightIs() && 1 != box[whichBox].getRightIs()) {
-				box[whichBox].SetXY(box[whichBox].getX() + 64, box[whichBox].getY());
-			}
-		}
+		man.SetMovingLeft(false);
 		man.SetMovingRight(true);
+		man.SetMovingUp(false);
+		man.SetMovingDown(false);
 	}
 	if (nChar == KEY_UP) {
-		eraser.SetMovingUp(true);
-		if (3 == man.getUpIs()) {
-			whichBox = boxNumberCheck(man.getX(), man.getY() - 64);
-			if (3 != box[whichBox].getUpIs() && 1 != box[whichBox].getUpIs()) {
-				box[whichBox].SetXY(box[whichBox].getX(), box[whichBox].getY() - 64);
-			}
-		}
+		man.SetMovingLeft(false);
+		man.SetMovingRight(false);
 		man.SetMovingUp(true);
+		man.SetMovingDown(false);
 	}
 	if (nChar == KEY_DOWN) {
-		eraser.SetMovingDown(true);
-		if (3 == man.getDownIs()) {
-			whichBox = boxNumberCheck(man.getX(), man.getY() + 64);
-			if (3 != box[whichBox].getDownIs() && 1 != box[whichBox].getDownIs()) {
-				box[whichBox].SetXY(box[whichBox].getX(), box[whichBox].getY() + 64);
-			}
-		}
+		man.SetMovingLeft(false);
+		man.SetMovingRight(false);
+		man.SetMovingUp(false);
 		man.SetMovingDown(true);
 	}
 }
@@ -466,46 +690,17 @@ void CGameStateRun::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	const char KEY_DOWN  = 0x28; // keyboard下箭頭
 
 	if (nChar == KEY_LEFT) {
-		eraser.SetMovingLeft(false);
 		man.SetMovingLeft(false);
 	}
 	if (nChar == KEY_RIGHT) {
-		eraser.SetMovingRight(false);
 		man.SetMovingRight(false);
 	}
 	if (nChar == KEY_UP) {
-		eraser.SetMovingUp(false);
 		man.SetMovingUp(false);
 	}
 	if (nChar == KEY_DOWN) {
-		eraser.SetMovingDown(false);
 		man.SetMovingDown(false);
 	}
-}
-
-void CGameStateRun::OnLButtonDown(UINT nFlags, CPoint point)  // 處理滑鼠的動作
-{
-	eraser.SetMovingLeft(true);
-}
-
-void CGameStateRun::OnLButtonUp(UINT nFlags, CPoint point)	// 處理滑鼠的動作
-{
-	eraser.SetMovingLeft(false);
-}
-
-void CGameStateRun::OnMouseMove(UINT nFlags, CPoint point)	// 處理滑鼠的動作
-{
-	// 沒事。如果需要處理滑鼠移動的話，寫code在這裡
-}
-
-void CGameStateRun::OnRButtonDown(UINT nFlags, CPoint point)  // 處理滑鼠的動作
-{
-	eraser.SetMovingRight(true);
-}
-
-void CGameStateRun::OnRButtonUp(UINT nFlags, CPoint point)	// 處理滑鼠的動作
-{
-	eraser.SetMovingRight(false);
 }
 
 void CGameStateRun::OnShow()
@@ -515,196 +710,224 @@ void CGameStateRun::OnShow()
 	//        否則當視窗重新繪圖時(OnDraw)，物件就會移動，看起來會很怪。換個術語
 	//        說，Move負責MVC中的Model，Show負責View，而View不應更動Model。
 	//
-	//
-	//  貼上背景圖、撞擊數、球、擦子、彈跳的球
-	//
-	background.ShowBitmap();			// 貼上背景圖
-	help.ShowBitmap();					// 貼上說明圖
-	hits_left.ShowBitmap();
-	for (int i=0; i < NUMBALLS; i++)
-		ball[i].OnShow();				// 貼上第i號球
-	bball.OnShow();						// 貼上彈跳的球
-	eraser.OnShow();					// 貼上擦子
-	//
-	//  貼上左上及右下角落的圖
-	//
-	corner.SetTopLeft(0,0);
-	corner.ShowBitmap();
-	corner.SetTopLeft(SIZE_X-corner.Width(), SIZE_Y-corner.Height());
-	corner.ShowBitmap();
+
+	background.SetTopLeft(0, 0);
+	background.ShowBitmap();
 
 	switch (whichMap){
 	case 1:
 		gamemap1.OnShow();
-		for (int i = 0; i < gamemap1.getBoxNum(); i++) {
+		for (int i = 0; i < gamemap1.GetChestNumber(); i++) {
 			box[i].OnShow();
 		}
+		man.OnShow();
 		break;
 	case 2:
 		gamemap2.OnShow();
-		for (int i = 0; i < gamemap2.getBoxNum(); i++) {
+		for (int i = 0; i < gamemap2.GetChestNumber(); i++) {
 			box[i].OnShow();
 		}
+		man.OnShow();
 		break;
 	case 3:
 		gamemap3.OnShow();
-		for (int i = 0; i < gamemap3.getBoxNum(); i++) {
+		for (int i = 0; i < gamemap3.GetChestNumber(); i++) {
 			box[i].OnShow();
 		}
+		man.OnShow();
+		break;
+	case 4:
+		gamemap4.OnShow();
+		for (int i = 0; i < gamemap4.GetChestNumber(); i++) {
+			box[i].OnShow();
+		}
+		man.OnShow();
+		break;
+	case 5:
+		gamemap5.OnShow();
+		for (int i = 0; i < gamemap5.GetChestNumber(); i++) {
+			box[i].OnShow();
+		}
+		man.OnShow();
+		break;
+	case 6:
+		gamemap6.OnShow();
+		for (int i = 0; i < gamemap6.GetChestNumber(); i++) {
+			box[i].OnShow();
+		}
+		man.OnShow();
+		break;
+	case 7:
+		gamemap7.OnShow();
+		for (int i = 0; i < gamemap7.GetChestNumber(); i++) {
+			box[i].OnShow();
+		}
+		man.OnShow();
+		break;
+	case 8:
+		gamemap8.OnShow();
+		for (int i = 0; i < gamemap8.GetChestNumber(); i++) {
+			box[i].OnShow();
+		}
+		man.OnShow();
+		break;
+	case 9:
+		gamemap9.OnShow();
+		for (int i = 0; i < gamemap9.GetChestNumber(); i++) {
+			box[i].OnShow();
+		}
+		man.OnShow();
+		break;
+	case 10:
+		gamemap10.OnShow();
+		for (int i = 0; i < gamemap10.GetChestNumber(); i++) {
+			box[i].OnShow();
+		}
+		man.OnShow();
+		break;
+	case 11:
+		gamemap11.OnShow();
+		for (int i = 0; i < gamemap11.GetChestNumber(); i++) {
+			box[i].OnShow();
+		}
+		man.OnShow();
+		break;
+	case 12:
+		gamemap12.OnShow();
+		for (int i = 0; i < gamemap12.GetChestNumber(); i++) {
+			box[i].OnShow();
+		}
+		man.OnShow();
 		break;
 	default:
 		break;
 	}
-
-
-	/*gamemap1.OnShow();
-	for (int i = 0; i < 5; i++) {
-		box[i].OnShow();
-	}*/
-	man.OnShow();
 }
 
-void CGameStateRun::setManLeftIs(Map* map) {
-	if (1 == map->getMap(man.getX() / 64 - 1, man.getY() / 64)) {
-		man.setLeftIs(1);
-	}else if (boxCheck(man.getX() - 64, man.getY())) {
-		man.setLeftIs(3);
-	}else {
-		man.setLeftIs(0);
-	}
-}
-
-void CGameStateRun::setManRightIs(Map* map) {
-	if (1 == map->getMap(man.getX() / 64 + 1, man.getY() / 64)) {
-		man.setRightIs(1);
-	}else if (boxCheck(man.getX() + 64, man.getY())) {
-		man.setRightIs(3);
-	}else {
-		man.setRightIs(0);
-	}
-}
-
-void CGameStateRun::setManUpIs(Map* map) {
-	if (1 == map->getMap(man.getX() / 64, man.getY() / 64 - 1)) {
-		man.setUpIs(1);
-	}else if (boxCheck(man.getX(), man.getY() - 64)) {
-		man.setUpIs(3);
-	}else {
-		man.setUpIs(0);
-	}
-}
-
-void CGameStateRun::setManDownIs(Map* map) {
-	if (1 == map->getMap(man.getX() / 64, man.getY() / 64 + 1)) {
-		man.setDownIs(1);
-	}else if (boxCheck(man.getX(), man.getY() + 64)) {
-		man.setDownIs(3);
-	}else {
-		man.setDownIs(0);
-	}
-}
-
-void CGameStateRun::setBoxLeftIs(Map* map, int num) {
-	if (1 == map->getMap(box[num].getX() / 64 - 1, box[num].getY() / 64)) {
-		box[num].setLeftIs(1);
-	}
-	else if (boxCheck(box[num].getX() - 64, box[num].getY())) {
-		box[num].setLeftIs(3);
-	}
-	else {
-		box[num].setLeftIs(0);
-	}
-}
-
-void CGameStateRun::setBoxRightIs(Map* map, int num) {
-	if (1 == map->getMap(box[num].getX() / 64 + 1, box[num].getY() / 64)) {
-		box[num].setRightIs(1);
-	}
-	else if (boxCheck(box[num].getX() + 64, box[num].getY())) {
-		box[num].setRightIs(3);
-	}
-	else {
-		box[num].setRightIs(0);
-	}
-}
-
-void CGameStateRun::setBoxUpIs(Map* map, int num) {
-	if (1 == map->getMap(box[num].getX() / 64, box[num].getY() / 64 - 1)) {
-		box[num].setUpIs(1);
-	}
-	else if (boxCheck(box[num].getX(), box[num].getY() - 64)) {
-		box[num].setUpIs(3);
-	}
-	else {
-		box[num].setUpIs(0);
-	}
-}
-
-void CGameStateRun::setBoxDownIs(Map* map, int num) {
-	if (1 == map->getMap(box[num].getX() / 64, box[num].getY() / 64 + 1)) {
-		box[num].setDownIs(1);
-	}
-	else if (boxCheck(box[num].getX(), box[num].getY() + 64)) {
-		box[num].setDownIs(3);
-	}
-	else {
-		box[num].setDownIs(0);
-	}
-}
-
-bool CGameStateRun::boxCheck(int boxX, int boxY) {
-	for (int i = 0; i < 8; i++) {
-		if (box[i].getX() == boxX && box[i].getY() == boxY) {
-			return true;
-		}
-	}
-	return false;
-}
-
-int CGameStateRun::boxNumberCheck(int boxX, int boxY) {
-	for (int i = 0; i < 8; i++) {
-		if (box[i].getX() == boxX && box[i].getY() == boxY) {
-			return i;
-		}
-	}
-	return 0;
-}
-
-bool CGameStateRun::checkWin() {
-	switch (whichMap){
-	case 1:
-		for (int i = 0; i < gamemap1.getBoxNum(); i++) {
-			box[i].setIsOnGoal(&gamemap1);
-			if (false == box[i].isOnGoal()) {
-				return false;
+// 這裡只是設定位置，不可以show
+void CGameStateRun::SetObjectPosition(Map gameMap) {
+	int count = 0;
+	for (int i = 0; i < 15; i++) {
+		for (int j = 0; j < 10; j++) {
+			switch (gameMap.GetPosition(i * 64, j * 64)) {
+			case 3:
+				box[count].SetX1Y1(i * 64, j * 64);
+				count++;
+				break;
+			case 4:
+				man.SetX1Y1(i * 64, j * 64);
+				break;
+			default:
+				break;
 			}
 		}
-		break;
-	case 2:
-		for (int i = 0; i < gamemap2.getBoxNum(); i++) {
-			box[i].setIsOnGoal(&gamemap2);
-			if (false == box[i].isOnGoal()) {
-				return false;
-			}
-		}
-		break;
-	case 3:
-		for (int i = 0; i < gamemap3.getBoxNum(); i++) {
-			box[i].setIsOnGoal(&gamemap3);
-			if (false == box[i].isOnGoal()) {
-				return false;
-			}
-		}
-		break;
-	default:
-		break;
 	}
-	/*for (int i = 0; i < 5; i++) {
-		box[i].setIsOnGoal(&gamemap1);
-		if (false == box[i].isOnGoal()) {
+}
+
+void CGameStateRun::CheckManHitWall(Map gameMap) {
+	// 左上，右上，左下，右下
+	gameMap.hitWall(man.GetX1() + 5, man.GetY1() + 5, man.GetX2() - 5, man.GetY2() - 5);
+	bool* hitDirection = gameMap.checkHitWall;
+
+	if (hitDirection[0] && hitDirection[2]) { // 左上、左下 撞 OK
+		man.SetX1Y1((man.GetX1() / 64 + 1) * 64, man.GetY1());
+	}
+	if (hitDirection[1] && hitDirection[3]) { // 右上、右下 撞 OK
+		man.SetX2Y2(man.GetX2() / 64 * 64, man.GetY2());
+	}
+	if (hitDirection[0] && hitDirection[1]) { // 左上、右上 撞 OK
+		man.SetX1Y1(man.GetX1(), (man.GetY1() / 64 + 1) * 64);
+	}
+	if (hitDirection[2] && hitDirection[3]) { // 左下、右下 撞 OK
+		man.SetX2Y2(man.GetX2(), man.GetY2() / 64 * 64);
+	}
+}
+
+void CGameStateRun::CheckManHitBox(Map gameMap) {
+	// (朝對的方向推 有碰到) 且 (箱子碰牆 或 碰箱子) => 人停下且設定位置
+	for (int i = 0; i < gameMap.GetChestNumber(); i++) {
+		// 上、下、左、右
+		man.HitBox(&box[i]);
+		bool* manHitBoxDirection = man.checkHitBox;
+		// 左上，右上，左下，右下
+		gameMap.hitWall(box[i].GetX1() + 5, box[i].GetY1() + 5, box[i].GetX2() - 5, box[i].GetY2() - 5);
+		bool* boxHitWallDirection = gameMap.checkHitWall;
+
+		if (manHitBoxDirection[0]) {		// 從上撞  OK
+			for (int j = 0; j < gameMap.GetChestNumber(); j++) {
+				if (i == j) {
+					continue;
+				}
+				if (boxHitWallDirection[2] || boxHitWallDirection[3] || box[i].HitBox(&box[j])) {	// 該箱子碰牆 或 碰箱子
+					man.SetMovingDown(false);
+					box[i].SetX2Y2(box[i].GetX2(), box[i].GetY2() / 64 * 64);
+					man.SetX2Y2(man.GetX2(), box[i].GetY1());
+				}
+				else {													// 箱子不碰牆 或 不碰箱子
+					box[i].SetX1Y1(box[i].GetX1(), man.GetY2());
+				}
+			}
+
+		}
+		if (manHitBoxDirection[1]) {		// 從下撞 裡面有一句 +15 那個是誤打誤撞 找時間了解
+			for (int j = 0; j < gameMap.GetChestNumber(); j++) {
+				if (i == j) {
+					continue;
+				}
+				if (boxHitWallDirection[0] || boxHitWallDirection[1] || box[i].HitBox(&box[j])) {	// 該箱子碰牆
+					man.SetMovingUp(false);
+					box[i].SetX2Y2(box[i].GetX2(), ((box[i].GetY2() + 15) / 64) * 64);
+					man.SetX1Y1(man.GetX1(), box[i].GetY2());
+				}
+				else {													// 箱子不碰牆
+					box[i].SetX2Y2(box[i].GetX2(), man.GetY1());
+				}
+			}
+		}
+		if (manHitBoxDirection[2]) {		// 從左撞  OK
+			for (int j = 0; j < gameMap.GetChestNumber(); j++) {
+				if (i == j) {
+					continue;
+				}
+				if (boxHitWallDirection[1] || boxHitWallDirection[3] || box[i].HitBox(&box[j])) {	// 該箱子碰牆
+					man.SetMovingRight(false);
+					box[i].SetX2Y2(box[i].GetX2() / 64 * 64, box[i].GetY2());
+					man.SetX2Y2(box[i].GetX1(), man.GetY2());
+				}
+				else {													// 箱子不碰牆
+					box[i].SetX1Y1(man.GetX2(), box[i].GetY1());
+				}
+			}
+		}
+		if (manHitBoxDirection[3]) {		// 從右撞 
+			for (int j = 0; j < gameMap.GetChestNumber(); j++) {
+				if (i == j) {
+					continue;
+				}
+				if (boxHitWallDirection[0] || boxHitWallDirection[2] || box[i].HitBox(&box[j])) {	// 該箱子碰牆
+					man.SetMovingLeft(false);
+					box[i].SetX1Y1((box[i].GetX1() + 15) / 64 * 64, box[i].GetY1());
+					man.SetX1Y1(box[i].GetX2(), man.GetY1());
+				}
+				else {													// 箱子不碰牆
+					box[i].SetX2Y2(man.GetX1(), box[i].GetY2());
+				}
+			}
+		}
+	}
+}
+
+bool CGameStateRun::CheckWin(Map gameMap) {
+	for (int i = 0; i < gameMap.GetChestNumber(); i++) {
+		if (2 != gameMap.GetPosition(box[i].GetX1() + 32, box[i].GetY1() + 32)) {
 			return false;
 		}
-	}*/
+	}
+	// 這樣才不會卡鍵
+	man.SetMovingUp(false);
+	man.SetMovingDown(false);
+	man.SetMovingLeft(false);
+	man.SetMovingRight(false);
 	return true;
 }
 }
